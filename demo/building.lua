@@ -3,6 +3,13 @@ building = {
 	flag = false,
 	time = 0,
 	cost = 10,
+	sprite = {
+		x = 0,
+		y = 64,
+		w = 64,
+		h = 64
+	},
+
 
 	init = function(self)
 		self.quantity = 0
@@ -12,15 +19,13 @@ building = {
 	end,
 
 	update = function(self)
-		if stat(34) == 1 and not self.flag then
-			if ((stat(32) >= 0) and (stat(32) <= 64)) then
-				if ((stat(33) >= 64) and (stat(33) <= 128)) then
-					if (mana.quantity >= self.cost) then
-						mana.quantity -= self.cost
-						self.quantity += 1
-						self.flag = true
-						self.cost += 1
-					end
+		if mouse.is_pressed and not self.flag then
+			if mouse:is_clicked_on_area(self.sprite.x, self.sprite.y, self.sprite.w, self.sprite.h) then
+				if (mana.quantity >= self.cost) then
+					mana.quantity -= self.cost
+					self.quantity += 1
+					self.flag = true
+					self.cost += 1
 				end
 			end
 		end
