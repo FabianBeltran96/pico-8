@@ -1,9 +1,9 @@
 function _init()
 	poke(0x5f2d, 1)
 	action_init()
-	mana_init()
-	building_init()
-	store_init()
+	mana:init()
+	building:init()
+	storage:init()
 
 	clock = 0
 	secs = 0
@@ -11,9 +11,9 @@ function _init()
 end
 
 function _update()
-	mana_update()
-	building_update()
-	store_update()
+	mana:update()
+	building:update()
+	storage:update()
 	action_update()
 
 	if start_flag then
@@ -35,11 +35,11 @@ function _draw()
 	map()
 	print("segundos: " .. secs, 64, 2)
 
-	mana_draw()
-	building_draw()
-	store_draw()
+	mana:draw()
+	building:draw()
+	storage:draw()
 	action_draw()
-	printh("test", "log")
-	--	print(stat(32).."/"..stat(33),stat(32),stat(33))
+	-- printh("test", "log")
+	print(stat(32) .. "/" .. stat(33), stat(32), stat(33))
 	circfill(stat(32), stat(33), 1, 6)
 end
