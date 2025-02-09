@@ -3,9 +3,11 @@ version 42
 __lua__
 function _init()
 	poke(0x5f2d,1)
+	action_init()
 	mana_init()
 	building_init()
 	store_init()
+	
 	
 	clock= 0 
 	secs = 0
@@ -16,6 +18,7 @@ function _update()
  mana_update()
  building_update()
  store_update()
+ action_update()
  
  if(start_flag)then
 		if(clock>=30)then
@@ -26,7 +29,7 @@ function _update()
 	
 	clock+=1
 	
-	if(mana>=100)then
+	if(mana.quantity>=100)then
 		start_flag=false
 	end	
 end
@@ -34,10 +37,12 @@ end
 function _draw()
 	cls()
 	map()
-	print("segundos: "..secs)
+	print("segundos: "..secs,64,2)
+	
 	mana_draw()
 	building_draw()
 	store_draw()
+	action_draw()
 	
 --	print(stat(32).."/"..stat(33),stat(32),stat(33))
 	circfill(stat(32),stat(33),1,6)
@@ -47,139 +52,180 @@ end
 -->8
 --mana
 function mana_init()
-	mana=1
-	mana_flag=false
-	mana_pressed=false
+
+	mana={
+		quantity=0,
+		flag=false,
+		mana_pressed=false,
+	}
+
 end
 
 function mana_update()
 	
-	if(store_f) then
+	if(storage.isFull) then
 	 return
 	end
 
-	if stat(34)==1 and not mana_flag then
-		if ((stat(32)>=61) and (stat(32)<=67)) then
-			if ((stat(33)>=29) and (stat(33)<=36)) then
-				mana+=1
-				mana_flag=true
-				start_flag=true
-				sfx(0)
-			else
-				mana_flag=false
-			end
-	 end
+	if action_state=="enable" then
+		if stat(34)==1 and not mana.flag then
+			if ((stat(32)>=61) and (stat(32)<=67)) then
+				if ((stat(33)>=29) and (stat(33)<=36)) then
+					mana.quantity+=1
+					mana.flag=true
+					start_flag=true
+					action_state="disable"
+				else
+					mana.flag=false
+				end
+		 end
+		end
 	end
 
 	if stat(34)==0 then
-		mana_flag=false	
+		mana.flag=false	
 	end
 
 end
 
 function mana_draw()
-	if(mana_flag)then
+	if(mana.flag)then
 		spr(1,61,29)
 	else
 	 spr(1,60,28)
 	end
 	
 	
-	print("mana: "..mana,7)
-	print(building.."/s")
+	print("mana: "..mana.quantity,2,2)
+	print(building.quantity.."/s")
 end
 -->8
 function building_init()
-	building=0
-	building_flag=false
-	building_time=0
-	building_cost=10
+
+	building={
+		quantity=0,
+		flag=false,
+		time=0,
+		cost=10	,
+	}
+
+	building.time=0
+	building.cost=10
 end
 
 function building_update()
 
-	if stat(34)==1 and not building_flag then
+	if stat(34)==1 and not building.flag then
 		if ((stat(32)>=0) and (stat(32)<=64)) then
 			if ((stat(33)>=64) and (stat(33)<=128)) then
-				if(mana >= building_cost) then
-					building+=1
-					building_flag=true
-					building_cost+=1
-					mana-=10
+				if(mana.quantity >= building.cost) then
+					mana.quantity-=building.cost
+					building.quantity+=1
+					building.flag=true
+					building.cost+=1
 		 	end
 		 end
 		end
  end
 	
 	if stat(34)==0 then
-		building_flag=false	
+		building.flag=false	
 	end
 	
-	if (mana >= store_t) then
-		mana=store_t
+	if (mana.quantity >= store_t) then
+		mana.quantity=store_t
 		return
 	end
 	
-	if (building > 0 and building_time==0) then
-		mana+=1*building
+	if (building.quantity > 0 and building.time==0) then
+		mana.quantity+=1*building.quantity
 	end
 	
-	if (building_time == 30) then
-		building_time=0
+	if (building.time == 30) then
+		building.time=0
 	else
-		building_time+=1
+		building.time+=1
 	end
 	
 end
 
 function building_draw()
-	print("buildings:"..building,0,64,7)
-	print("building cost:"..building_cost)
-
+	print("bdg unit:"..building.quantity,2,66,7)
+	print("bdg cost:"..building.cost)
 end
 -->8
 function store_init()
-	store_q = 1
-	store_t = store_q * 10
-	store_f = false --is store full?
-	store_flag = false
-	store_cost = 10
+	storage={
+		units=1,		
+		flag=false,
+		isFull=false,
+		flag=false,
+	}
+
+	storage.units = 1
+	store_t = storage.units * 10
+	storage.flag = false
+	storage.cost = 10
 end
 
 function store_update()
 	
-	store_t = store_q * 10
+	store_t = storage.units * 10
 	
-	if (mana>=store_t) then
-		store_f = true 
+	if (mana.quantity>=store_t) then
+		storage.isFull = true 
 	else
-		store_f = false
+		storage.isFull = false
 	end
 	
-	if stat(34)==1 and not store_flag then
+	if stat(34)==1 and not storage.flag then
 		if ((stat(32)>=64) and (stat(32)<=128)) then
 			if ((stat(33)>=64) and (stat(33)<=128)) then
-				if(mana >= store_cost) then
-					mana-=10
-					store_q+=1
-					store_flag=true
-					store_cost+=1
+				if(mana.quantity >= storage.cost) then
+					mana.quantity-=10
+					storage.units+=1
+					storage.flag=true
+					storage.cost+=1
 		 	end
 		 end
 		end
  end
  
  if stat(34)==0 then
-		store_flag=false	
+		storage.flag=false	
 	end
 	
 end
 
 function store_draw()
-	print("store: "..mana.."/"..store_t,64,64)
-	print("store q: "..store_q) 
-	print("store cost :"..store_cost)
+	print("store: "..mana.quantity.."/"..store_t,66,66)
+	print("store q: "..storage.units) 
+	print("store cost :"..storage.cost)
 end	
+-->8
+function action_init()
+	action_state="enable" -- enable or disable
+	action_time=30
+	action_clock=0
+end
+
+function action_update()
+	if(action_state=="disable")then
+		action_clock+=1
+	end
+	if(action_clock==30)then
+		action_clock=0
+		action_state="enable"
+	end
+end
+
+function action_draw()
+ if action_state=="enable" then
+		rect(0,0,127,127,11)
+	else
+		rect(0,0,127,127,5)	
+	end
+end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000440000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
