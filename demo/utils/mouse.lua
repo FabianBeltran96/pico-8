@@ -18,6 +18,7 @@ mouse = {
     -- Dibujar el mouse.
     draw = function(self)
         circfill(self.x, self.y, 1, 6)
+        -- print(self.x .. ", " .. self.y, self.x + 4, self.y - 4, 6)
     end,
 
     -- Métodos de la clase.
