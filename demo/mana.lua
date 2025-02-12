@@ -17,10 +17,13 @@ mana = {
 	end,
 
 	update = function(self)
+		-- Si la cantidad de maná es mayor o igual al total, entonces el almacenamiento está lleno.
 		if storage.isFull then return end
 
 		if action.state == "enable" then
+			-- Valida si el botón del mouse está presionado y la bandera es falsa.
 			if mouse:is_pressed() and not self.flag then
+				-- Valida si el mouse está clickeado en el área del sprite.
 				if mouse:is_clicked_on_area(self.sprite.x, self.sprite.y, self.sprite.w, self.sprite.h) then
 					self.quantity += 1
 					self.flag = true
@@ -32,18 +35,21 @@ mana = {
 			end
 		end
 
+		-- Valida si el botón del mouse ha sido liberado.
 		if mouse:is_released() then
 			self.flag = false
 		end
 	end,
 
 	draw = function(self)
+		-- Dibuja el sprite del maná.
 		if self.flag then
 			spr(1, 61, 29)
 		else
 			spr(1, 60, 28)
 		end
 
+		-- Dibuja la cantidad de maná, en la esquina superior izquierda de la pantalla.
 		print("mana: " .. self.quantity, 2, 2)
 		print(building.quantity .. "/s")
 	end

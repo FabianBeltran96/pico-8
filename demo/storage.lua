@@ -13,9 +13,10 @@ storage = {
 	types = {
 		"Mana Bottle",
 		"Mana Vault",
-		"Etherial Fountain"
+		"Mana Closet"
 	},
 
+	-- Inicialización del almacenamiento.
 	init = function(self)
 		self.quantity = 1
 		self.flag = false
@@ -25,19 +26,24 @@ storage = {
 		self.cost = 10
 	end,
 
+	-- Actualización del almacenamiento.
 	update = function(self)
+		-- Multiplica la cantidad por 10, para obtener el total.
 		self.total = self.quantity * 10
 
+		-- Si la cantidad de maná es mayor o igual al total, entonces el almacenamiento está lleno.
 		if (mana.quantity >= self.total) then
 			self.isFull = true
 		else
 			self.isFull = false
 		end
 
+		-- Valida si el botón del mouse está presionado y la bandera es falsa.
 		if mouse:is_pressed() and not self.flag then
+			-- Valida si el mouse está clickeado en el área del sprite.
 			if mouse:is_clicked_on_area(self.sprite.x, self.sprite.y, self.sprite.w, self.sprite.h) then
 				if (mana.quantity >= self.cost) then
-					mana.quantity -= 10
+					mana.quantity -= self.cost
 					self.quantity += 1
 					self.flag = true
 					self.cost += 1
@@ -45,7 +51,7 @@ storage = {
 			end
 		end
 
-		if stat(34) == 0 then
+		if mouse:is_released() then
 			self.flag = false
 		end
 	end,
@@ -53,8 +59,8 @@ storage = {
 	draw = function(self)
 		local start = 64
 		for i = 0, 2 do
-			-- printh(self.types[i],"log")
 			spr(i + 2, start + 4, 64 + (i * 21) + 4)
+			print(self.types[i + 1], start + 16, 64 + (i * 21) + 4, 7)
 			-- rectfill(64 + (i * 21), 64 + 42, 64 + (i * 21) + 1, 64 + 42 + 1, 7)
 			-- rectfill(64, 64 + 42, 128, 64 + 42 + 1, 7)
 		end
